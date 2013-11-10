@@ -9,30 +9,62 @@ Thanks to [brocktice](http://blog.brocktice.com/2013/03/09/running-debian-wheezy
 * Google Chromebook Pixel laptop with Linux installed.
 * Build toolchains.  
 
+
+##Know issue
+If we register the keyboard backlight device as `backlight` to Linux system, Gnome will be confused with LCD backlight and Keyboard backlight, In system setting panel, display brightness adjust will be operated on Keyboard Backlight.
+So, we register it as `leds` devices to system to make Gnome happy.
+
 ##How to install
 
-clone the code and build with:
+Clone the code 
+
+if you want the keyboard backlight works like an `backlight` then edit `pixel_kb_backlight.c` 
+
+	#ifdef KB_BACKLIGHT
+	#define DEVICE_NAME "chromeos-keyboard-backlight"
+	#else
+	#define DEVICE_NAME "chromeos-keyboard-leds"
+	#endif
+
+Change these you the driver will act as `backlight` or `leds`.
+
+Build with:
 
 	make
 
-You will get two drivers:
+You will get 3 drivers:
 	chromeos_keyboard_bl.ko  	#backlight class driver
+	chromeos-keyboard-leds.ko   #leds class driver
 	pixel_kb_backlight.ko		#keyboard backlight device driver
 	
 Now, you can load the drivers:
 
+if you choose `backlight`
+
 	sudo insmod chromeos_keyboard_bl.ko
 	sudo insmod pixel_kb_backlight.ko
 
+if you choose `leds`
+
+	sudo insmod chromeos-keyboard-leds.ko
+	sudo insmod pixel_kb_backlight.ko
+
 OK, check whether the drivers load succsefully:
-	
+
+if you choose `backlight`
+
 	ls /sys/class/backlight
 	
+if you choose `leds`
 
-If you can see `keyboard_backlight` from `ls` output, It works!
+	ls /sys/class/leds
+	
+
+If you can see `keyboard_backlight` or `chromeos::kbd_backlight` from `ls` output, It works!
 
 ###How to use
 I have put a helper shell script to adjust the backlight level
+**You need edit the script if you choose `backlight`, to use the correct path**
 
 	# turn on the backlight
 	sudo ./keyboard_brightness.sh on
@@ -47,6 +79,8 @@ I have put a helper shell script to adjust the backlight level
 	sudo ./keyboard_brightness.sh down
 	
 
+
+##For `leds` as sample:
 ###Make it load automaticlly while system boot
 
 I install Ubuntu 13.10 with Linux kernel 3.12.0-031200-generic, so I do the following:
@@ -61,7 +95,7 @@ I install Ubuntu 13.10 with Linux kernel 3.12.0-031200-generic, so I do the foll
 	
 then edit `/etc/modules` and add two lines:
 
-	chromeos_keyboard_bl
+	chromeos-keyboard-leds
 	pixel_kb_backlight
 
 Just reboot the laptop, the keyboard backlight driver will load automaticlly.

@@ -3,7 +3,7 @@
 DIRECTION=$1
 INCREMENT=10
 
-DEVFILE=/sys/class/backlight/keyboard_backlight/brightness
+DEVFILE=/sys/class/leds/chromeos\:\:kbd_backlight/brightness
 DEFAULT_LEVEL=60
 
 CURR=`cat $DEVFILE`

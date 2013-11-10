@@ -29,12 +29,18 @@
 #include <linux/init.h>
 #include <linux/platform_device.h>
 
+#ifdef KB_BACKLIGHT
+#define DEVICE_NAME "chromeos-keyboard-backlight"
+#else
+#define DEVICE_NAME "chromeos-keyboard-leds"
+#endif
+
 static struct platform_device *kb_backlight_device;
 
 static int __init setup_keyboard_backlight(const struct dmi_system_id *id)
 {
 	kb_backlight_device =
-		platform_device_register_simple("chromeos-keyboard-backlight",
+		platform_device_register_simple(DEVICE_NAME,
 						-1, NULL, 0);
 	if (IS_ERR(kb_backlight_device)) {
 		pr_warn("Error registering Chromebook Pixel keyboard LEDs.\n");
